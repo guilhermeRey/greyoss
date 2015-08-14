@@ -1,0 +1,40 @@
+<nav class="navbar-default navbar-static-side" role="navigation">
+    <div class="sidebar-collapse">
+      <div style="background-color: #f3f3f4">
+        <img src="http://www.gamezonealpha.com/img/content/Dungeons.png" style="width: 90%;margin:10px;" />
+      </div>
+        <ul side-navigation class="nav" id="side-menu">
+            <li class="nav-header">
+                <div class="dropdown profile-element" dropdown>
+                    Dungeon Master Shield
+                    <a class="dropdown-toggle" dropdown-toggle href>
+                            <span class="clear">
+                                <span class="block m-t-xs">
+                                    <strong class="font-bold">{{main.dungeonMaster.name}}</strong>
+                             </span>
+                                <span class="text-muted text-xs block">{{main.dungeonMaster.email}}</span>
+                            </span>
+                    </a>
+                </div>
+            </li>
+
+            <li ui-sref-active="active">
+                <a ui-sref="index.main"><i class="fa fa-fire"></i> <span class="nav-label">{{main.game.name}}</span> </a>
+                <ul class="nav nav-second-level collapse in">
+                  <li>
+                    <a ui-sref="index.main">
+                      <i class="fa fa-globe"></i> Mundo
+                    </a>
+                  </li>
+                  <li ng-repeat="adv in main.game.adventures">
+                    <a ui-sref="index.adventure({id:adv.id})">
+                      <i class="fa fa-gears"></i>
+                      {{ adv.name }}
+                    </a>
+                  </li>
+                </ul>
+            </li>
+        </ul>
+
+    </div>
+</nav>

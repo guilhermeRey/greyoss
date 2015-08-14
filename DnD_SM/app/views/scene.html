@@ -1,0 +1,172 @@
+<style>
+      .slot {
+        margin-right: 4px;
+        margin-top: 4px;
+        width: 40px;
+        height: 40px;
+        display: inline-block;
+        border: none;
+        background-color: rgba(255, 255, 255, 0.3);
+      }
+
+			.lvl-over {
+				/* applied to a drop target when a draggable object is over it */
+				border: 2px dashed black !important;
+			}
+
+			.lvl-target {
+				/*
+				applied to all drop targets when a drag operation begins
+				removed when the drag operation ends
+				used to indicate drop targets on a page
+				*/
+				background-color: #ddd;
+				opacity: .5;
+			}
+
+			[draggable] {
+				/* not applied by the directive, but useful to indicate a draggable element */
+				-moz-user-select: none;
+				-khtml-user-select: none;
+				-webkit-user-select: none;
+				user-select: none;
+				cursor: move;
+			}
+</style>
+
+<div class="row wrapper border-bottom white-bg page-heading" ng-init="init()">
+  <div class="col-lg-8">
+    <h2>
+      <i class="fa fa-bolt"></i>
+      {{scene.name}} <br />
+      <small><i class="fa fa-map-marker"></i> {{ scene.location.name }}</small>
+    </h2>
+    <p>{{scene.description}}</p>
+    <h1>
+      <span ng-show="isRolling">
+        <i class="fa fa-cube fa-spin"></i>
+         Rolando...
+      </span>
+      <span ng-show="!isRolling && rolls.length > 0">
+        {{rolls[rolls.length - 1].text}} = <b>{{rolls[rolls.length - 1].result}}</b>
+      </span>
+    </h1>
+    <audio style="display: none" src="dnd_resources/musics/rollingDice.mp3" id="dice-roll-sound">
+    </audio>
+  </div>
+  <div class="col-lg-4" style="margin-top: 10px; text-align: center">
+    <a ui-sref="index.scene({id: previous.id })" class="btn btn-block btn-outline btn-info" ng-show="previous.name != ''">
+      <i class="fa fa-chevron-left"></i>
+      <span>{{previous.name}}</span>
+    </a>
+    <a ui-sref="index.scene({id: next.id})" class="btn btn-block btn-outline btn-info" ng-show="next.name != ''">
+      <i class="fa fa-chevron-right"></i>
+      <span>{{next.name}}</span>
+    </a>
+    <div style="text-align: left; margin-top: 10px" ng-show="scene.musics && scene.musics.length > 0">
+      <audio ng-src="{{scene.current.music.file}}" loop controls="controls" id="ambience-music" class="" style="width: 100%">
+        <p>Seu nevegador não suporta o elemento audio.</p>
+      </audio>
+      <div class="dropdown">
+        <button class="btn btn-warning dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+          <i class="fa fa-music"></i>
+          {{scene.current.music.name}}
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+          <li ng-repeat="m in scene.musics">
+            <a ng-click="music(m)">{{m.name}}</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row white-bg border-bottom">
+  <div class="col-md-3">
+    <div>
+      <h2 style="text-align: center"><i class="fa fa-drupal"></i> Monstros</h2>
+      <a class="btn btn-xs btn-outline btn-default pull-right" ng-click="refreshMonsters()">
+        <i class="fa fa-refresh"></i>
+      </a>
+      <h3>Instâncias</h3>
+      <div>
+        <ul>
+          <li ng-repeat="monster in scene.current.dungeon.monsters">
+            {{ monster.name }} <span class="label label-warning"><i class="fa fa-heartbeat"></i> {{monster.hp}}</span>
+            <a class="btn btn-xs btn-danger" ng-click="hitMonster(monster)"><i class="fa fa-gavel"></i> </a>
+          </li>
+        </ul>
+      </div>
+      <table class="table">
+        <tr ng-repeat="monster in scene.monsters">
+          <td colspan="">
+            <table class="table table-striped">
+              <tr>
+                <td class="client-avatar"><img ng-src="{{ monster.image }}" /></td>
+                <td style="vertical-align: middle">{{monster.name}}</td>
+                <td style="vertical-align: middle"><i class="fa fa-shield"></i> <br /> {{monster.ac}}</td>
+                <td style="vertical-align: middle"><i class="fa fa-heartbeat"></i> <br /> {{monster.hp}}</td>
+                <td style="vertical-align: middle"><i class="fa fa-cube"></i> <br /> +{{monster.initiative}}</td>
+                <td style="vertical-align: middle"><a class="btn btn-outline btn-info btn-xs" ng-click="addMonster(monster)">
+                  <i class="fa fa-arrow-right"></i>
+                </a></td>
+              </tr>
+              <tr ng-repeat="spell in monster.spells">
+                <td style="text-align: center" colspan="2"><i class="fa fa-eye"></i> {{spell.name}}</td>
+                <td colspan="2" style="font-size: 0.95em;vertical-align:middle"><i class="fa fa-bolt"></i> {{spell.damage}}</td>
+                <td colspan="2">
+                  <a class="btn btn-xs btn-outline btn-danger" title="Rolar Dano" ng-click="damageRoll(spell)">
+                    <i class="fa fa-spinner"></i>
+                  </a>
+                  <a class="btn btn-xs btn-outline btn-warning" title="Rolar Dano" ng-click="initiativeRoll(monster.initiative)">
+                    <i class="fa fa-warning"></i>
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-6" style="margin-bottom: 40px;">
+    <div style="width:100%; height: 540px; text-align: center;background-size: {{scene.current.grid.zoom}} auto; background-image: url({{scene.location.map}})" id="dungeon-grid" class="grid">
+      <div draggable=true style="left:{{$index*40}}px;position: absolute; background: white; width: 40px; height: 40px; border: 2px solid #F00" class="draggable" ng-repeat="player in main.game.players">
+        <span>{{ player.name }}</span>
+      </div>
+      <div ng-repeat="monster in scene.current.dungeon.monsters track by $index"
+           ng-show="monster.hp > 0"
+           draggable="true"
+           style="position: absolute; background: black; color: white; width: 40px; height: 40px; border: 2px solid #F00" class="draggable">
+        <span>{{ monster.name }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div style="position: relative">
+      <img style="width:100%;" ng-src="{{ scene.location.map }}" />
+      <div id="grid-square-guide" data-target-grid="dungeon-grid" class="draggable"
+           style="position: absolute; height: 40px; width: 40px; border: 3px solid #F00; top: 0px; left: 0px">
+      </div>
+    </div>
+    <div>
+
+    </div>
+    <div class="clearfix"></div>
+    <div>
+      <h2 style="text-align: center"><i class="fa fa-gears"></i> Configurações</h2>
+      <div>
+        <label>
+          zoom:
+          <input type="text" ng-model="scene.current.grid.zoom">
+        </label>
+        <label>
+          monstro:
+          <input type="text" ng-model="scene.current.monster">
+        </label>
+      </div>
+    </div>
+  </div>
+</div>
