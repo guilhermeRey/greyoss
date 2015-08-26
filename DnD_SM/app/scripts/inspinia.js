@@ -36,22 +36,7 @@ $(document).ready(function () {
       $( ".draggable" ).draggable({
         containment: 'parent'
       });
-      $( "#grid-square-guide" ).draggable({
-        containment: 'parent',
-        drag: function( e, ui ) {
-          var target = $('#' + ui.helper.data('target-grid'));
-          var parentHeight = parseFloat(ui.helper.parent().height());
-
-          var y = (ui.position.top / parentHeight) * 100;
-          var x = (ui.position.left / parentHeight) * 100.0;
-
-          y = parseFloat((y * 100.00) / 81.81);
-
-          target.css('background-position-x', x + '%');
-          target.css('background-position-y', y + '%');
-        }
-      });
-    }, 3000);
+    }, 500);
 
     setTimeout(function(){
         fix_height();
@@ -59,6 +44,7 @@ $(document).ready(function () {
 
     setTimeout(function () {
       $('.grid').each(function () {
+        return;
         var bw = 520;
         var bh = 520;
         //padding around grid
@@ -71,11 +57,11 @@ $(document).ready(function () {
         var context = canvas.get(0).getContext("2d");
 
         function drawBoard() {
-            for (var x = 0; x <= bw; x += 40) {
+            for (var x = 0; x <= bw; x += 60) {
                 context.moveTo(0.5 + x + p, p);
                 context.lineTo(0.5 + x + p, bh + p);
             }
-            for (var x = 0; x <= bh; x += 40) {
+            for (var x = 0; x <= bh; x += 60) {
                 context.moveTo(p, 0.5 + x + p);
                 context.lineTo(bw + p, 0.5 + x + p);
             }

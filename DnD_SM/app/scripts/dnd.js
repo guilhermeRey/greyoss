@@ -102,7 +102,7 @@ var Player = function Player(args) {
   this.ac = args.ac;
   this.initiative = args.initiative;
   this.hp = args.hp;
-  this.currentHp = this.hp;
+  this.currentHp = args.currentHp || this.hp;
 
   this.restore = function (torestore) {
     if (torestore + this.currentHp > this.hp) {
@@ -119,6 +119,17 @@ var Player = function Player(args) {
 
   this.php = function () {
     return parseFloat((this.currentHp * 100.0) / this.hp).toFixed(2);
+  };
+
+  this.currentColorHp = function () {
+    var hpPercentage = this.php();
+
+    if (hpPercentage <= 25)
+      return "red-bg";
+    else if (hpPercentage <= 65)
+      return 'yellow-bg';
+
+    return 'navy-bg';
   };
 };
 

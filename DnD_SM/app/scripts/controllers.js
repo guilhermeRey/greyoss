@@ -192,7 +192,27 @@ LocalStorageDb.prototype.where = function (keyName) {
                  name: 'CAF Dungeon - Level 2',
                  map: 'dnd_resources/maps/dungeon2.jpg'
                },
-               npcs: [],
+               npcs: [{
+                 name: 'Elfo Amigo',
+                 image: '',
+                 ac: 15,
+                 hp: 7,
+                 initiative: 3,
+                 hits: [{
+                   name: 'Arco e Flecha',
+                   damage: '1d8'
+                 }]
+               }, {
+                 name: 'Elfa Amiga',
+                 image: '',
+                 ac: 15,
+                 hp: 9,
+                 initiative: 3,
+                 hits: [{
+                   name: 'Adaga Dupla',
+                   damage: '2d4'
+                 }]
+               }],
                monsters: [{
                  name: 'Beholder',
                  image: 'dnd_resources/monsters/beholder.jpg',
@@ -240,28 +260,6 @@ LocalStorageDb.prototype.where = function (keyName) {
                    name: 'Reviver Esqueleto',
                    damage: '1d8'
                  }]
-               }, {
-                 name: 'Elfo Amigo',
-                 image: 'dnd_resources/monsters/necromancer.jpg',
-                 ac: 15,
-                 hp: 7,
-                 initiative: 3,
-                 weapon: null,
-                 spells: [{
-                   name: 'Arco e Flecha',
-                   damage: '1d8'
-                 }]
-               }, {
-                 name: 'Elfa Amiga',
-                 image: 'dnd_resources/monsters/necromancer.jpg',
-                 ac: 15,
-                 hp: 9,
-                 initiative: 3,
-                 weapon: null,
-                 spells: [{
-                   name: 'Adaga Dupla',
-                   damage: '2d4'
-                 }]
                }],
                musics: [{
                  name: 'Dungeon',
@@ -290,8 +288,8 @@ LocalStorageDb.prototype.where = function (keyName) {
 /**
  * MainCtrl - controller
  */
-function MainCtrl($scope) {
-
+function MainCtrl($scope, $interval) {
+    var db = DnD.DB.instance().dbcontext('DnD');
     this.dungeonMaster = {
       name: 'Guilherme Rey',
       email: 'poli.rey@gmail.com'
@@ -305,6 +303,12 @@ function MainCtrl($scope) {
     this.toggleConfigView = function () {
       $scope.config.full = !$scope.config.full;
     };
+
+    this.playerAction = function (player, expr) {
+      eval(expr);
+      db.save('current-players', JSON.stringify(this.game.players));
+    };
+
 };
 
 function AdventureCtrl($scope, $stateParams, $interval) {
@@ -325,6 +329,7 @@ function AdventureCtrl($scope, $stateParams, $interval) {
 
     db.save('game', JSON.stringify($scope.game));
     db.save("current.scene", JSON.stringify($scope.currentScene));
+    db.save('current-players', JSON.stringify($scope.game.players));
   };
 }
 
@@ -333,6 +338,7 @@ function SceneController($scope, $stateParams, $interval, $timeout) {
       sceneidx = parseInt($stateParams.id);
 
   $scope.init = function () {
+    $scope.game = JSON.parse(db.where('game'));
     $scope.adventure = JSON.parse(db.where('current.adventure'));
     $scope.scene = $scope.adventure.scenes[sceneidx];
     $scope.rolls = [];
@@ -346,8 +352,41 @@ function SceneController($scope, $stateParams, $interval, $timeout) {
         left: '',
         zoom: '600%'
       },
+      mode: 'normal',
+      combat: {
+        turns: [],
+        initiative: []
+      },
+      menus: {
+        library: {
+          show: true,
+          isTab: true
+        },
+        tools: {
+          show: false,
+          isTab: true
+        },
+        combat: {
+          show: false,
+          isTab: true
+        },
+        monsters: {
+          show: false,
+          isTab: false
+        },
+        npcs: {
+          show: false,
+          isTab: false
+        },
+        items: {
+          show: false,
+          isTab: false
+        }
+      },
       dungeon: {
-        monsters: []
+        monsters: [],
+        npcs: [],
+        items: []
       }
     };
 
@@ -363,15 +402,148 @@ function SceneController($scope, $stateParams, $interval, $timeout) {
     $interval(function() {
        db.save('current-grid', $('<div>').append($('#dungeon-grid').clone()).html());
        db.save('current-monster', $scope.scene.current.monster);
+       db.save('current-mode', $scope.scene.current.mode);
+       db.save('current-turns', $('<div>').append($('#turns').clone()).html());
     }, 500);
+
+    $timeout(function () {
+      $( ".draggable" ).draggable({
+        containment: 'parent'
+      });
+      $('#grid-slider-square-guide').on('input', function () {
+        var $miniMap = $('#grid-minimap'),
+            w_m = $miniMap.width(),
+            h_m = $miniMap.height(),
+            $this = $(this);
+
+        var w = parseFloat(($this.val() * w_m) / 100.0).toFixed(2),
+            h = parseFloat(($this.val() * h_m) / 100.0).toFixed(2),
+            z_bg_w = (w_m / w) * 100;
+            z_bg_h = (h_m / h) * 100;
+
+         $('#dungeon-grid').css('background-size', z_bg_w + '% ' + z_bg_h +  '%');
+
+         $("#grid-square-guide")
+            .css('width', w)
+            .css('height', h);
+      });
+
+      $( "#grid-square-guide" ).draggable({
+        containment: 'parent',
+        drag: function(e, ui) {
+          debugger;
+          var target = $('#' + ui.helper.data('target-grid'));
+
+          var h_m = parseFloat(ui.helper.parent().height());
+          var w_m = parseFloat(ui.helper.parent().width());
+          var t_p = (ui.position.top / h_m) * 100;
+          var l_p = (ui.position.left / w_m) * 100;
+
+          var gridBgPos = target.css('background-size').split(' ');
+          var bgPos = {
+            x: parseFloat(gridBgPos[1].replace('%', '')),
+            y: parseFloat(gridBgPos[0].replace('%', ''))
+          };
+
+          var x = target.width(),
+              y = target.height();
+
+          var w = (x * bgPos.x) / 100.0,
+             h = (y * bgPos.y) / 100.0;
+
+          var bgx = (l_p / 100.0) * w,
+              bgy = (t_p / 100.0) * h;
+
+          target.css('background-position', -(bgx) + 'px ' + -bgy + 'px');
+        }
+      });
+    }, 500);
+  }
+
+  $scope.uncombat = function () {
+    $scope.scene.current.mode = 'normal';
+    $scope.scene.current.combat.turns = [];
+    $scope.scene.current.combat.initiative = [];
+  };
+
+  $scope.defineTurns = function () {
+    $scope.scene.current.combat.initiative = _.sortBy($scope.scene.current.combat.initiative, function (o) {return -o.initiative;});
+    _.each($scope.scene.current.combat.initiative, function (e) {
+      $scope.scene.current.combat.turns.push({
+        subject: e.subject,
+        active: false
+      });
+    });
+    $scope.scene.current.combat.turns[0].active = true;
+    $scope.scene.current.combat.initiative = [];
+  };
+
+  $scope.nextTurn = function () {
+    debugger;
+    for (var i = 0; i < $scope.scene.current.combat.turns.length; i++) {
+      if ($scope.scene.current.combat.turns[i].active) {
+        $scope.scene.current.combat.turns[i].active = false;
+        $scope.scene.current.combat.turns[(i + 1) % $scope.scene.current.combat.turns.length].active = true;
+        break;
+      }
+    }
+  };
+
+  $scope.combat = function () {
+    $scope.scene.current.mode = 'combat';
+    $scope.scene.current.combat.turns = [];
+    $scope.scene.current.combat.initiative = [];
+
+    _.each($scope.game.players, function (e) {
+      $scope.scene.current.combat.initiative.push({
+        subject: e,
+        initiative: 0
+      });
+    });
+    _.each($scope.scene.current.dungeon.monsters, function (m) {
+      $scope.scene.current.combat.initiative.push({
+        subject: m,
+        initiative: 0
+      });
+    });
+  };
+
+  $scope.tab = function (tabName) {
+    for (var menu in $scope.scene.current.menus) {
+      if($scope.scene.current.menus[menu].isTab) $scope.scene.current.menus[menu].show = false;
+    }
+
+    $scope.scene.current.menus[tabName].show = true;
+  };
+
+  $scope.toggleMenu = function (obj) {
+    obj.show = !obj.show;
   }
 
   $scope.refreshMonsters = function () {
     $scope.scene.current.dungeon.monsters = [];
   };
 
-  $scope.hitMonster = function (monster) {
-    monster.hp--;
+  $scope.hit = function (subject) {
+    subject.hp--;
+  };
+
+  $scope.addDraggableItemToGrid = function (arr, obj) {
+    arr.push(obj);
+    $timeout(function () {
+      $( ".draggable" ).draggable({
+        containment: 'parent'
+      });
+    }, 1000);
+  };
+
+  $scope.addNPC = function (npc) {
+    var newNpc = {
+      name: npc.name,
+      hp: npc.hp
+    };
+
+    $scope.addDraggableItemToGrid($scope.scene.current.dungeon.npcs, newNpc);
   };
 
   $scope.addMonster = function (monster) {
@@ -379,12 +551,8 @@ function SceneController($scope, $stateParams, $interval, $timeout) {
       name: monster.name + ' ' + (parseInt($scope.scene.current.dungeon.monsters.length) + 1),
       hp: monster.hp
     };
-    $scope.scene.current.dungeon.monsters.push(newMonster);
-    $timeout(function () {
-      $( ".draggable" ).draggable({
-        containment: 'parent'
-      });
-    }, 1000);
+
+    $scope.addDraggableItemToGrid($scope.scene.current.dungeon.monsters, newMonster);
   }
 
   $scope.dropped = function(dragEl, dropEl) { // function referenced by the drop target
@@ -416,6 +584,10 @@ function SceneController($scope, $stateParams, $interval, $timeout) {
     $scope.rollDice(spell.name + ' (' + spell.damage + ')', Dice.damage(spell.damage)());
   };
 
+  $scope.roll = function (dice) {
+    $scope.rollDice(dice, Dice.damage(dice)());
+  };
+
   $scope.rollDice = function (d, r) {
     $scope.isRolling = true;
     $('#dice-roll-sound').on('click', function () { this.play(); });
@@ -431,12 +603,41 @@ function SceneController($scope, $stateParams, $interval, $timeout) {
   };
 }
 
-function SceneCtrl($scope, $stateParams, $interval) {
+function SceneCtrl($scope, $stateParams, $interval, $timeout) {
   var db = DnD.DB.instance().dbcontext('DnD');
+  var w = $(window).width(),
+      h = $(window).height();
+
+  $('#table-canvas').css('width', w).css('height', h);
+  $('#img-shield').css('width', w).css('height', h);
+
+  $scope.currentWindow = {
+    width: $(window).width(),
+    height: $(window).height()
+  };
+
   $interval(function () {
-    $('#canvas').html(db.where('current-grid'));
-    $scope.monster = db.where('current-monster');
+    var w = $(window).width(),
+        h = $(window).height();
+
+    $('#table-canvas').css('width', w).css('height', h);
+    $('#img-shield').css('width', w).css('height', h);
+  }, 10000);
+
+  $interval(function () {
+     $('#canvas').html(db.where('current-grid'));
+     $('#turns').html(db.where('current-turns'));
+     $scope.mode = db.where('current-mode');
+     debugger;
   }, 500);
+
+  $interval(function () {
+    var players = JSON.parse((db.where('current-players')));
+    $scope.players = [];
+    _.each(players, function (e) {
+      $scope.players.push(new Player(e));
+    });
+  }, 1000);
 
   /*$scope.game = JSON.parse(localStorage.getItem("DnD.game"));
   $scope.adventure = $scope.game.AdventureById($scope.id);
