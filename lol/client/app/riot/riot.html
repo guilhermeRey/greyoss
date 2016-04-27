@@ -1,0 +1,95 @@
+<div ng-include="'components/navbar/navbar.html'"></div>
+
+<div class="container" ng-init="init()">
+  <div class="col-md-10 col-md-offset-1">
+    <div class="row">
+      <div class="col-sm-2">
+        <h3>Campeões</h3>
+      </div>
+      <div class="col-sm-3">
+      </div>
+      <div class="col-sm-3 custom-margin-input">
+        <div class="btn-group" role="group">
+          <button type="button" class="btn btn-default" ng-click="searchFreeToPlay = false">Todos</button>
+          <button type="button" class="btn btn-default" ng-click="searchFreeToPlay = true">Gratuitos</button>
+        </div>
+      </div>
+      <div class="col-sm-4">
+        <div class="input-group custom-margin-input">
+          <span class="input-group-addon" id="basic-addon1"><i class="fa fa-search"></i></span>
+          <input type="text" class="form-control" ng-model="championSearch" placeholder="Procure um campeão...">
+        </div><!-- /input-group -->
+      </div>
+    </div>
+
+    <div class="row-fluid champions">
+      <div ng-show="champions.length == 0">
+        <i class="fa fa-spinner fa-spin"></i>
+        Buscando campeões...
+      </div>
+      <div ng-repeat="(id, champion) in filteredChampions(champions) | filter:championSearch" class="col-md-1 thumbnail">
+        <img title="{{champion.data.name}}, {{champion.data.title}}" class="img img-responsive"
+        ng-src="{{'http://ddragon.leagueoflegends.com/cdn/5.22.1/img/champion/'+champion.data.image.full}}" />
+      </div>
+    </div>
+  </div>
+  <div style="margin-top: 20px;"></div>
+  <div class="row">
+    <div class="col-md-3">
+      <div class="input-group">
+        <input type="text" class="form-control" ng-model="summonerByName" placeholder="Nome do Invocador">
+        <span class="input-group-btn">
+          <button class="btn btn-default" type="button" ng-click="searchSummoners()">Buscar</button>
+        </span>
+      </div><!-- /input-group -->
+      <br />
+      <div>
+        <div ng-repeat="candidate in candidateSummoners track by $index" class="media">
+          <div class="row-fluid">
+            <div class="col-sm-3 thumbnail">
+              <img class="img img-responsive"
+              ng-src="{{'http://ddragon.leagueoflegends.com/cdn/5.22.1/img/profileicon/' + candidate.profileIconId + '.png'}}" />
+            </div>
+            <div class="col-sm-9">
+              <h3 style="margin:0px;">{{candidate.name}}</h3>
+              <b>Level {{candidate.summonerLevel}}</b>
+              <div style="margin-top: 5px">
+                <a href="javascript:void(0)" class="btn btn-primary btn-xs " ng-click="selectSummoner(candidate)">
+                  <i class="glyphicon glyphicon-eye-open"></i> detalhes
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-9" ng-show="summoner">
+      <div class="row well well-sm">
+        <div class="col-md-2 thumbnail">
+          <img class="img img-responsive"
+               ng-src="{{'http://ddragon.leagueoflegends.com/cdn/5.22.1/img/profileicon/' + summoner.profileIconId + '.png'}}" />
+        </div>
+        <div class="col-md-10">
+          <h1>
+            {{summoner.name}} <small>Level {{summoner.summonerLevel}}</small>
+          </h1>
+        </div>
+      </div>
+      <div>
+        <div class="row" ng-repeat="game in summoner.recent.games track by $index">
+          <div class="col-sm-1 thumbnail">
+            <img class="img img-responsive"
+            ng-src="{{'http://ddragon.leagueoflegends.com/cdn/5.22.1/img/champion/' + champions[game.championId].data.image.full}}" />
+          </div>
+          <div class="col-sm-4">
+            <!--<pre>{{game|json}}</pre>-->
+            <span class="label" ng-class="{'label-success':game.stats.win,'label-danger':!game.stats.win}">
+              {{game.stats.win ? "Vitória" : "Derrota"}}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
