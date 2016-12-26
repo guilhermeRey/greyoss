@@ -57,14 +57,14 @@ namespace FileSizeSearcher
             PrepareAmbient();
             
             if (ReadyToStart)
-                SearchInDirectories(txtStartFolder.Text);
+                SearchFiles(txtStartFolder.Text);
             else
                 MessageBox.Show("You must set the start folder AND the minimun file size!");
 
             EndSearch();
         }
 
-        private void SearchInDirectories(string startFolder)
+        private void SearchFiles(string startFolder)
         {
             string[] dirs = new string[] { };
 
@@ -80,7 +80,7 @@ namespace FileSizeSearcher
 
             int i = 0;
             progressBar1.Minimum = 0;
-            
+
             foreach (string dir in dirs)
             {
                 progressBar1.Maximum = dirs.Length;
@@ -125,6 +125,11 @@ namespace FileSizeSearcher
                             size.ToString() });
                 }
             }
+        }
+
+        private void SearchInDirectories(string startFolder)
+        {
+            
 
         }
 

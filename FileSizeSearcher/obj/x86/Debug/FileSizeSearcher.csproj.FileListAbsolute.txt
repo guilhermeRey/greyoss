@@ -19,5 +19,12 @@ F:\WindowsFiles\Desktop\Gui\Projetos\Filesizesearcher\FileSizeSearcher\obj\x86\D
 F:\WindowsFiles\Desktop\Gui\Projetos\Filesizesearcher\FileSizeSearcher\obj\x86\Debug\FileSizeSearcher.csproj.GenerateResource.Cache
 C:\Users\Yarquen\Documents\GitHub\grey-projects\csharp-filesizesearch\FileSizeSearcher\obj\x86\Debug\FileSizeSearcher.exe
 C:\Users\Yarquen\Documents\GitHub\grey-projects\csharp-filesizesearch\FileSizeSearcher\obj\x86\Debug\FileSizeSearcher.pdb
+C:\Users\Grey\Documents\GitHub\greyoss\FileSizeSearcher\bin\Debug\FileSizeSearcher.exe
+C:\Users\Grey\Documents\GitHub\greyoss\FileSizeSearcher\bin\Debug\FileSizeSearcher.pdb
+C:\Users\Grey\Documents\GitHub\greyoss\FileSizeSearcher\obj\x86\Debug\FileSizeSearcher.csprojResolveAssemblyReference.cache
+C:\Users\Grey\Documents\GitHub\greyoss\FileSizeSearcher\obj\x86\Debug\FileSizeSearcher.SearchForm.resources
+C:\Users\Grey\Documents\GitHub\greyoss\FileSizeSearcher\obj\x86\Debug\FileSizeSearcher.Properties.Resources.resources
+C:\Users\Grey\Documents\GitHub\greyoss\FileSizeSearcher\obj\x86\Debug\FileSizeSearcher.SearchWinForm.resources
+C:\Users\Grey\Documents\GitHub\greyoss\FileSizeSearcher\obj\x86\Debug\FileSizeSearcher.csproj.GenerateResource.Cache
 C:\Users\Grey\Documents\GitHub\greyoss\FileSizeSearcher\obj\x86\Debug\FileSizeSearcher.exe
 C:\Users\Grey\Documents\GitHub\greyoss\FileSizeSearcher\obj\x86\Debug\FileSizeSearcher.pdb

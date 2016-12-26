@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace FileSizeSearcher
 {
-    public partial class SearchWinForm : Form
+    public partial class SearchWinForm : Form, Viewee
     {
         private int MinMb;
         private long Errors = 0;
@@ -21,8 +21,8 @@ namespace FileSizeSearcher
             InitializeComponent();
 
             gridResults.Columns.Add("dirName", "Dir Name");
-            gridResults.Columns.Add("fileName", "File Name");
-            gridResults.Columns.Add("fileSize", "File Size (Mb)");
+            gridResults.Columns.Add("dirPath", "Dir Path");
+            gridResults.Columns.Add("dirSize", "Dir Size (Mb)");
 
             this.ReadyToStart = false;
         }
@@ -31,7 +31,7 @@ namespace FileSizeSearcher
         {
             gridResults.Rows.Clear();
             ReadyToStart = CheckInput(txtStartFolder) && CheckInput(txtMinSize);
-            
+
             if (!ReadyToStart)
                 throw new Exception("You must set the start folder AND the minimun file size!");
 
@@ -41,7 +41,7 @@ namespace FileSizeSearcher
 
         private bool CheckInput(TextBox control)
         {
-            return  control != null && control.Text != String.Empty;
+            return control != null && control.Text != String.Empty;
         }
 
         private void EndSearch()
@@ -61,7 +61,23 @@ namespace FileSizeSearcher
             try
             {
                 PrepareAmbient();
-                SearchInDirectories(txtStartFolder.Text);
+                //SearchInDirectories(txtStartFolder.Text);
+                SearchFolders search = new SearchFolders(this);
+
+                Dir startDir = new Dir(txtStartFolder.Text);
+                startDir.Summarize();
+                search.Search(startDir, this.MinMb);
+
+                foreach (Dir dir in search.FoundDirs)
+                {
+                    gridResults.Rows.Add(new string[] {
+                            dir.Name, 
+                            dir.Path,
+                            dir.Size.ToString()
+                    });
+                    Application.DoEvents();
+                }
+
                 EndSearch();
             }
             catch (Exception ex)
@@ -138,6 +154,23 @@ namespace FileSizeSearcher
         {
             folderBrowserDialog1.ShowDialog();
             txtStartFolder.Text = folderBrowserDialog1.SelectedPath;
+        }
+
+        private void btnStop_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        public void Log(string message)
+        {
+            lblConsole.Text = message;
+            Application.DoEvents();
+        }
+
+        public void OnException(Exception ex)
+        {
+            lblConsole.Text = ex.Message;
+            Application.DoEvents();
         }
     }
 }
