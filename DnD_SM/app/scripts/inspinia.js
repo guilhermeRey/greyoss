@@ -70,7 +70,7 @@ $(document).ready(function () {
         }
         drawBoard();
       });
-    }, 1200);
+    }, 3000);
 });
 
 // Minimalize menu when screen is less than 768px

@@ -27,9 +27,10 @@ LocalStorageDb.prototype.where = function (keyName) {
      players: [
       {
         name: 'Sir Eriah',
+        level: 2,
         ac: 16,
         initiative: 4,
-        hp: 11,
+        hp: 18,
         age: '33',
         sex: 'Male',
         height: '1.85',
@@ -58,7 +59,7 @@ LocalStorageDb.prototype.where = function (keyName) {
         name: 'Beren',
         ac: 15,
         initiative: 7,
-        hp: 7,
+        hp: 10,
         age: '35',
         sex: 'Male',
         height: '1.80',
@@ -73,9 +74,10 @@ LocalStorageDb.prototype.where = function (keyName) {
       },
       {
         name: 'Meitán Pifu',
+        level: 2,
         ac: 15,
         initiative: 2,
-        hp: 9,
+        hp: 18,
         age: '28',
         sex: 'Male',
         height: '1.70',
@@ -88,9 +90,10 @@ LocalStorageDb.prototype.where = function (keyName) {
       },
       {
         name: 'Argoth Greymane',
+        level: 2,
         ac: 18,
         initiative: 2,
-        hp: 11,
+        hp: 17,
         age: '150',
         sex: 'Male',
         height: '1.64',
@@ -259,6 +262,116 @@ LocalStorageDb.prototype.where = function (keyName) {
                  }, {
                    name: 'Reviver Esqueleto',
                    damage: '1d8'
+                 }]
+               }],
+               musics: [{
+                 name: 'Dungeon',
+                 file: 'dnd_resources/musics/65_Dungeon_I.mp3'
+               }]
+         }, {
+               name: 'IV CAF - Group Rounds - Arena',
+               description: 'Uma arena com terreno deserto, onde pedras gigantes são avistadas. Os aventureiros deverão buscar a jóia do time adversário',
+               location: {
+                 name: 'CAF Arena - Tower Defence',
+                 map: 'dnd_resources/maps/cav_arena.jpg'
+               },
+               images: [],
+               npcs: [],
+               monsters: [{
+                 name: 'Escorpião Gigante',
+                 image: 'dnd_resources/monsters/scorpion.jpg',
+                 ac: 13,
+                 hp: 15,
+                 initiative: 1,
+                 weapon: null,
+                 spells: [{
+                   name: 'Ferroada',
+                   damage: '1d4 + 1'
+                 }]
+               }, {
+                 name: 'Elemental da Terra',
+                 image: 'dnd_resources/monsters/scorpion.jpg',
+                 ac: 16,
+                 hp: 28,
+                 initiative: -1,
+                 weapon: null,
+                 spells: [{
+                   name: 'Slam',
+                   damage: '1d8 + 2'
+                 }]
+               }, {
+                 name: 'Elfo Mago',
+                 image: 'dnd_resources/monsters/scorpion.jpg',
+                 ac: 15,
+                 hp: 6,
+                 initiative: 3,
+                 weapon: null,
+                 spells: [{
+                   name: 'Magic Missile',
+                   damage: '1d4 + 1'
+                 }]
+               }, {
+                 name: 'Humano Guerreiro',
+                 image: 'dnd_resources/monsters/scorpion.jpg',
+                 ac: 15,
+                 hp: 10,
+                 initiative: 2,
+                 weapon: null,
+                 spells: [{
+                   name: 'Espadada',
+                   damage: '1d4'
+                 }]
+               }, {
+                 name: 'Humano Bárbaro',
+                 image: 'dnd_resources/monsters/scorpion.jpg',
+                 ac: 13,
+                 hp: 10,
+                 initiative: 1,
+                 weapon: null,
+                 spells: [{
+                   name: 'Machadada',
+                   damage: '1d4'
+                 }]
+               }, {
+                 name: 'Elfo Bardo',
+                 image: 'dnd_resources/monsters/scorpion.jpg',
+                 ac: 13,
+                 hp: 10,
+                 initiative: 1,
+                 weapon: null,
+                 spells: [{
+                   name: 'Hold Person',
+                   damage: '1d4'
+                 }]
+               }],
+               musics: [{
+                 name: 'Arena',
+                 file: 'dnd_resources/musics/57_Colosseum.mp3'
+               }, {
+                 name: 'Dungeon',
+                 file: 'dnd_resources/musics/65_Dungeon_I.mp3'
+               }]
+         }, {
+               name: 'O prêmio do CAF',
+               description: 'O grupo finalmente entra no castelo de Estrov, em busca dos espiões prendidos',
+               location: {
+                 name: 'Estrov Castle',
+                 map: 'dnd_resources/maps/castle_levels.jpg'
+               },
+               images: [],
+               npcs: [{
+                 name: ''
+               }],
+               monsters: [{
+                 name: 'Guarda',
+                 image: 'dnd_resources/monsters/necromancer.jpg',
+                 ac: 14,
+                 hp: 7,
+                 initiative: 0,
+                 weapon: 'Espada longa',
+                 spells: [{
+                   name: 'Espadada',
+                   damage: '1d4'
                  }]
                }],
                musics: [{
