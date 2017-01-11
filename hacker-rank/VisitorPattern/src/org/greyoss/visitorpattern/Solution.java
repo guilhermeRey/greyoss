@@ -93,31 +93,30 @@ class SumInLeavesVisitor extends TreeVis {
     }
 
     public void visitLeaf(TreeLeaf leaf) {
-    	System.out.println("Valor folha: " + leaf.getValue());
       	this.sum += leaf.getValue();
-      	System.out.println("Soma atual: " + this.sum);
     }
 }
 
 class ProductOfRedNodesVisitor extends TreeVis {
-    private int product;
+    private long product;
+    private final int MODULUS = 1000000007;
     
     public ProductOfRedNodesVisitor() {
         this.product = 1;
     }
     
     public int getResult() {
-      	return this.product;
+      	return (int) this.product;
     }
 
     public void visitNode(TreeNode node) {
       	if (node.getColor() == Color.RED)
-            this.product *= node.getValue();
+            this.product = (this.product * node.getValue()) % MODULUS;
     }
 
     public void visitLeaf(TreeLeaf leaf) {
     	if (leaf.getColor() == Color.RED)
-    		this.product *= leaf.getValue();
+    		this.product = (this.product * leaf.getValue()) % MODULUS;
     }
 }
 
@@ -141,10 +140,10 @@ class FancyVisitor extends TreeVis {
 }
 
 class TreeBuilder {
-    int     n;
-    int[]   values;
-    Color[] colors;
-    
+    	  int   n;
+    	int[]   values;
+      Color[] 	colors;
+    boolean[] 	visited;
     LinkedList<LinkedList<Integer>> edges = new LinkedList<LinkedList<Integer>>();
     
     TreeNode root;
@@ -153,8 +152,12 @@ class TreeBuilder {
         this.n = n;
         this.values = values;
         this.colors = colors;
+        this.visited = new boolean[this.n];
         
-        for (int i = 0; i < this.n; i++) edges.add(new LinkedList<Integer>());
+        for (int i = 0; i < this.n; i++) {
+        	edges.add(new LinkedList<Integer>());
+        	this.visited[i] = false;
+        }
     }
     
     public void addEdge(int from, int to) {
@@ -166,12 +169,17 @@ class TreeBuilder {
         
         for (int i = 0; i < nodeEdges.size(); i++) {
             Integer vi = nodeEdges.get(i);
-            if (this.edges.get(vi).size() == 0)
+            LinkedList<Integer> connectionEdges = this.edges.get(vi);
+            
+            if ((connectionEdges.contains(nodeIndex) && connectionEdges.size() == 1) || 
+            	(connectionEdges.size() == 0) && !this.visited[vi]) {
                 parent.addChild(new TreeLeaf(this.values[vi], this.colors[vi], parent.getDepth() + 1));
-            else
-            {
+                this.visited[vi] = true;
+            }
+            else if (!this.visited[vi]) {
                 TreeNode toAdd = new TreeNode(this.values[vi], this.colors[vi], parent.getDepth() + 1);
                 parent.addChild(toAdd);
+            	this.visited[vi] = true;
                 buildFrom(toAdd, vi);
             }
         }
@@ -179,8 +187,9 @@ class TreeBuilder {
     
     public Tree build() {
         this.root = new TreeNode(this.values[0], this.colors[0], 0);
-        this.buildFrom(this.root, 0);
+        this.visited[0] = true;
         
+        this.buildFrom(this.root, 0);
         return this.root;
     }
 }
@@ -188,7 +197,7 @@ class TreeBuilder {
 public class Solution {
   
     public static Tree solve() throws FileNotFoundException {
-    	File input = new File("C:\\Users\\Grey\\Documents\\Github\\greyoss\\hacker-rank\\VisitorPattern\\src\\org\\greyoss\\visitorpattern\\test-case-1.txt");
+    	File input = new File("C:\\Users\\Grey\\Documents\\Github\\greyoss\\hacker-rank\\VisitorPattern\\src\\org\\greyoss\\visitorpattern\\input13.txt");
         Scanner scanner = new Scanner(input);
         
         int     nodeCount   = scanner.nextInt();
