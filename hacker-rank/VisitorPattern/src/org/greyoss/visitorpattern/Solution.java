@@ -3,7 +3,8 @@ package org.greyoss.visitorpattern;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 enum Color {
@@ -144,44 +145,53 @@ class TreeBuilder {
     	int[]   values;
       Color[] 	colors;
     boolean[] 	visited;
-    LinkedList<LinkedList<Integer>> edges = new LinkedList<LinkedList<Integer>>();
+    
+    Map<Integer, ArrayList<Integer>> edges = new HashMap<Integer, ArrayList<Integer>>();
     
     TreeNode root;
     
-    public TreeBuilder(int n, int[] values, Color[] colors) {
-        this.n = n;
-        this.values = values;
-        this.colors = colors;
-        this.visited = new boolean[this.n];
-        
-        for (int i = 0; i < this.n; i++) {
-        	edges.add(new LinkedList<Integer>());
+    public TreeBuilder(int n) {
+    	this.n = n;
+    	this.values = new int[n];
+    	this.colors = new Color[n];
+    	this.visited = new boolean[n];
+    	initVisited();
+    }
+    
+    private void initVisited() {
+    	for (int i = 0; i < this.n; i++) {
         	this.visited[i] = false;
         }
     }
     
     public void addEdge(int from, int to) {
+    	if (!this.edges.containsKey(from))
+    		this.edges.put(from, new ArrayList<Integer>());
+    	
         this.edges.get(from).add(to);
     }
     
     private void buildFrom(TreeNode parent, int nodeIndex) {
-        LinkedList<Integer> nodeEdges = edges.get(nodeIndex);
+    	ArrayList<Integer> nodeEdges = edges.get(nodeIndex);
         
         for (int i = 0; i < nodeEdges.size(); i++) {
             Integer vi = nodeEdges.get(i);
-            LinkedList<Integer> connectionEdges = this.edges.get(vi);
+            if (this.visited[vi])
+            	continue;
             
-            if ((connectionEdges.contains(nodeIndex) && connectionEdges.size() == 1) || 
-            	(connectionEdges.size() == 0) && !this.visited[vi]) {
-                parent.addChild(new TreeLeaf(this.values[vi], this.colors[vi], parent.getDepth() + 1));
-                this.visited[vi] = true;
-            }
-            else if (!this.visited[vi]) {
-                TreeNode toAdd = new TreeNode(this.values[vi], this.colors[vi], parent.getDepth() + 1);
-                parent.addChild(toAdd);
-            	this.visited[vi] = true;
-                buildFrom(toAdd, vi);
-            }
+            ArrayList<Integer> connectionEdges = this.edges.get(vi);
+            Tree child;
+            
+            if (connectionEdges.size() < 2)
+                child = new TreeLeaf(this.values[vi], this.colors[vi], parent.getDepth() + 1);
+            else
+                child = new TreeNode(this.values[vi], this.colors[vi], parent.getDepth() + 1);
+            
+            parent.addChild(child);
+            this.visited[vi] = true;
+            
+            if (child instanceof TreeNode)
+            	buildFrom((TreeNode)child, vi);
         }
     }
     
@@ -200,20 +210,17 @@ public class Solution {
     	File input = new File("C:\\Users\\Grey\\Documents\\Github\\greyoss\\hacker-rank\\VisitorPattern\\src\\org\\greyoss\\visitorpattern\\input13.txt");
         Scanner scanner = new Scanner(input);
         
-        int     nodeCount   = scanner.nextInt();
-        int[]   nodeValues  = new int[nodeCount];
-        Color[] nodeColors  = new Color[nodeCount];
+        int n = scanner.nextInt();
+        TreeBuilder builder = new TreeBuilder(n);
         
-        for (int i = 0; i < nodeCount; i++)
-            nodeValues[i] = scanner.nextInt();
+        for (int i = 0; i < n; i++)
+            builder.values[i] = scanner.nextInt();
         
-        for (int i = 0; i < nodeCount; i++)
-            nodeColors[i] = scanner.nextInt() == 0 ? Color.RED : Color.GREEN;
+        for (int i = 0; i < n; i++)
+            builder.colors[i] = scanner.nextInt() == 0 ? Color.RED : Color.GREEN;
         
-        TreeBuilder builder = new TreeBuilder(nodeCount, nodeValues, nodeColors);
-        for (int j = 0; j < nodeCount - 1; j++) {
-        	int u = scanner.nextInt() - 1;
-        	int v = scanner.nextInt() - 1;
+        for (int j = 0; j < (n - 1); j++) {
+        	int u = scanner.nextInt() - 1, v = scanner.nextInt() - 1;
             builder.addEdge(u, v);
             builder.addEdge(v, u);
         }
