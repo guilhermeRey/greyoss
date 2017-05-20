@@ -1,0 +1,24 @@
+﻿@model DemoApp.Core.Usecases.TituloCreate
+@using  DemoApp.Core.Usecases;
+
+@{
+    ViewBag.Title = "Editor";
+    EixoX.Html.Bootstrap3Presenter<TituloCreate> Presenter = EixoX.Html.Bootstrap3Presenter<TituloCreate>.GetInstance(1058);
+    bool Validate = Request.HttpMethod.Equals("Post", StringComparison.OrdinalIgnoreCase);
+}
+
+<h4>Novo titulo para @Model.time.Nome</h4>
+<div class="well">
+    <form method="post">
+        @{
+            Presenter.Render(this.Output, Model, Validate);
+        }
+
+        <div>
+            <input type="submit" value="Enviar" class="btn btn-success"/>
+        </div>
+    </form>
+</div>
+
+
+

@@ -1,0 +1,31 @@
+﻿@model TimeCreate
+@using EixoX.Html;
+@using DemoApp.Core
+@using DemoApp.Core.Views;
+@{
+    ViewBag.Title = "Index";
+    List<TituloByTime> times = (List<TituloByTime>)ViewData["times"];
+    Bootstrap3Presenter<TimeCreate> presenter = Bootstrap3Presenter<TimeCreate>.GetInstance("pt-BR");
+
+    bool validateRestrictions = "post".Equals(Request.HttpMethod, StringComparison.OrdinalIgnoreCase);
+}
+<div>
+    <ul>
+        @foreach (TituloByTime time in times)
+        {
+            <li>@time.Nome <b style="display: @(time.Titulos > 0 ? "inline-block" : "none")">@time.Titulos títulos</b> (<a href="@Url.Content("~/Dashboard/DeleteTime/?timeId=" + time.TimeId)">remover</a>) (<a href="@Url.Content("~/Titulo/Editor/" + time.TimeId)">Novo titulo</a>)</li>
+            
+        }
+    </ul>
+    <hr />
+    <div class="well">
+        <form method="post">
+            @{
+                presenter.Render(this.Output, Model, validateRestrictions); 
+            }
+            <div>
+                <input class="btn btn-primary" type="submit" value="Cadastrar!" />
+            </div>
+        </form>
+    </div>
+</div>
